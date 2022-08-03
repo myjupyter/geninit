@@ -1,0 +1,7 @@
+Add flags:
+  --error - (bool) New constructor returns type and error otherwise only type
+  --structs - (string list) list of structs for which option will be generated
+  --private - (bool) generate initialization for private structures // it seems to be useless
+
+Add:
+  package imports

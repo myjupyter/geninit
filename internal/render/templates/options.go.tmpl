@@ -1,0 +1,36 @@
+package {{ .PackageName }}
+
+import (
+  "errors"
+)
+
+{{ range $idx, $struct := .Structs }}
+type {{$struct.TypeName}}Option func(*{{$struct.TypeName}}) error 
+
+func New{{$struct.TypeName}}(opts ...{{$struct.TypeName}}Option) (*{{$struct.TypeName}}, error) {
+    obj := &{{$struct.TypeName}}{}
+    for _, opt := range opts {
+      if err := opt(obj); err != nil {
+          return nil, err
+      }
+    }
+    return obj, nil
+}
+
+func Must{{$struct.TypeName}}(opts ...{{$struct.TypeName}}Option) *{{$struct.TypeName}} {
+  obj, err := New{{$struct.TypeName}}(opts...)
+  if err != nil {
+    panic(err)
+  }
+  return obj
+}
+
+{{ range $index, $field := $struct.Fields}}
+func With{{$field.WithName}}({{$field.Name}} {{$field.TypeName}}) {{$struct.TypeName}}Option {
+  return func(obj *{{$struct.TypeName}}) error {
+    // TODO: your initialization rule
+    return errors.New("not implemented")
+  }
+}
+{{end}}
+{{end}}
