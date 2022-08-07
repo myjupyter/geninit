@@ -21,6 +21,14 @@ Works only with composite types
 
 ---
 
+# Install
+
+```
+$ go install github.com/myjupyter/geninit@v0.1.1
+```
+
+---
+
 # Example 
 ```
 $ geninit --filename=./example/example.go --type=Str --optprefix="Str" --property="D:required;E:required;F:required;A:alias=LONGALIASFORFUNC" > ./example/str_options.go
