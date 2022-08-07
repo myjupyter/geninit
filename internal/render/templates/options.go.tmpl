@@ -1,6 +1,7 @@
 package {{ .PackageName }}
 {{ if .Imports}}
 import (
+  "errors"
 {{- range $import := .Imports }}
   {{if $import.Alias}}{{$import.Alias}} {{end}}"{{$import.Path}}"
 {{- end}}
@@ -32,13 +33,13 @@ func Must{{.Struct.TypeName}}({{ .Struct.RequiredFieldsAsParams}}{{if .Struct.Ha
   }
   return obj
 }
-{{- range $field := .Struct.Fields}} 
-{{ if not $field.Required }}
+{{ range $field := .Struct.Fields}} 
+{{- if not $field.Required }}
 func With{{$field.WithName}}({{$field.ParamShorthand}} {{$field.TypeName}}) {{$.Struct.Prefix}}Option {
   return func(obj *{{$.Struct.TypeName}}) error {
     // TODO: your initialization rule
     return errors.New("not implemented")
   }
 }
-{{- end}}
+{{ end}}
 {{- end}}

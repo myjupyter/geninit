@@ -18,7 +18,6 @@ var (
 	typename   string
 	prefix     string
 	properties string
-	output     string
 )
 
 func parseFlags() struct{} {
@@ -38,7 +37,7 @@ func getType(ss []*entity.Struct, t string) (*entity.Struct, error) {
 			return s, nil
 		}
 	}
-	return nil, fmt.Errorf("no type %T detected", t)
+	return nil, fmt.Errorf("no type detected")
 }
 
 func genParamShorthand(p string) string {
