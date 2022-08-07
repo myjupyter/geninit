@@ -7,6 +7,7 @@ import (
 )
 
 type EntityAdder interface {
+	AddImport(*ast.ImportSpec) error
 	AddPackageName(string) error
 	AddStructType(*ast.StructType, string) error
 }
@@ -19,6 +20,11 @@ func ParseTo(filename string, ea EntityAdder) error {
 	}
 	if err := ea.AddPackageName(f.Name.Name); err != nil {
 		return err
+	}
+	for _, is := range f.Imports {
+		if err := ea.AddImport(is); err != nil {
+			return err
+		}
 	}
 	for _, decl := range f.Decls {
 		if err := inspectDecl(decl, ea); err != nil {

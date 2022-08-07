@@ -1,5 +1,11 @@
 package example
 
+import (
+	"database/sql"
+	json "encoding/json"
+	"go/ast"
+)
+
 type InterfaceEmpty interface {
 }
 
@@ -9,12 +15,19 @@ type Interface interface {
 
 type Str struct {
 	A int
+	B *ast.ArrayType
+	C json.RawMessage
+	D *map[string]struct{}
+	E *chan int
+	F interface{}
+	G *interface{}
 }
 
 type ExampleStruct struct {
-	A int `geninit:"alias=Struct"`
-	B string
-	C []struct {
+	AA *sql.DB
+	A  int `geninit:"alias=Struct"`
+	B  string
+	C  []struct {
 		A string
 		B int
 		C []struct {

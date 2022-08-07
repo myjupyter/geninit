@@ -1,6 +1,6 @@
 .PHONY: build
 build:
-	@go build cmd/geninit/main.go
+	@go build -o bin/geninit cmd/geninit/main.go
 
 run:
 	@./main -filename ./example.go

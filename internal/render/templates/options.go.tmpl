@@ -1,36 +1,44 @@
 package {{ .PackageName }}
-
+{{ if .Imports}}
 import (
-  "errors"
+{{- range $import := .Imports }}
+  {{if $import.Alias}}{{$import.Alias}} {{end}}"{{$import.Path}}"
+{{- end}}
 )
+{{- end}}
 
-{{ range $idx, $struct := .Structs }}
-type {{$struct.TypeName}}Option func(*{{$struct.TypeName}}) error 
+type {{.Struct.Prefix}}Option func(*{{.Struct.TypeName}}) error 
 
-func New{{$struct.TypeName}}(opts ...{{$struct.TypeName}}Option) (*{{$struct.TypeName}}, error) {
-    obj := &{{$struct.TypeName}}{}
+func New{{.Struct.TypeName}}({{ .Struct.RequiredFieldsAsParams}}{{if .Struct.HasRequiredAndOptionalField}}, {{end}}{{ if .Struct.HasOptionalField}}opts ...{{.Struct.Prefix}}Option{{end}}) (*{{.Struct.TypeName}}, error) {
+    obj := &{{.Struct.TypeName}}{
+    {{- range $field := .Struct.ListRequiredFields }}
+      {{$field.Name}}: {{$field.ParamShorthand}},
+    {{- end}}
+    }
+    {{- if .Struct.HasOptionalField}}
     for _, opt := range opts {
       if err := opt(obj); err != nil {
           return nil, err
       }
     }
+    {{- end}}
     return obj, nil
 }
 
-func Must{{$struct.TypeName}}(opts ...{{$struct.TypeName}}Option) *{{$struct.TypeName}} {
-  obj, err := New{{$struct.TypeName}}(opts...)
+func Must{{.Struct.TypeName}}({{ .Struct.RequiredFieldsAsParams}}{{if .Struct.HasRequiredAndOptionalField}}, {{end}}{{ if .Struct.HasOptionalField}}opts ...{{.Struct.Prefix}}Option{{end}}) *{{.Struct.TypeName}} {
+  obj, err := New{{.Struct.TypeName}}({{.Struct.PassRequiredFields}}{{if .Struct.HasRequiredAndOptionalField}}, {{end}}{{ if .Struct.HasOptionalField}}opts...{{end}})
   if err != nil {
     panic(err)
   }
   return obj
 }
-
-{{ range $index, $field := $struct.Fields}}
-func With{{$field.WithName}}({{$field.Name}} {{$field.TypeName}}) {{$struct.TypeName}}Option {
-  return func(obj *{{$struct.TypeName}}) error {
+{{- range $field := .Struct.Fields}} 
+{{ if not $field.Required }}
+func With{{$field.WithName}}({{$field.ParamShorthand}} {{$field.TypeName}}) {{$.Struct.Prefix}}Option {
+  return func(obj *{{$.Struct.TypeName}}) error {
     // TODO: your initialization rule
     return errors.New("not implemented")
   }
 }
-{{end}}
-{{end}}
+{{- end}}
+{{- end}}

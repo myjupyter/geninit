@@ -3,16 +3,35 @@ package entity
 import (
 	"errors"
 	"go/ast"
+	"path"
 	"strings"
 )
 
-const genInitTagName = "geninit"
+func NewFile(raw []byte) (*File, error) {
+	f := &File{
+		RawFile: raw,
+	}
+	return f, nil
+}
 
 type File struct {
 	PackageName string
+	Imports     []*Import
 	Structs     []*Struct
 
 	RawFile []byte
+}
+
+func (f *File) AddImport(is *ast.ImportSpec) error {
+	im := &Import{
+		Path: strings.Trim(is.Path.Value, `"`),
+	}
+	if is.Name != nil {
+		im.Alias = is.Name.Name
+	}
+	im.Name = path.Base(im.Path)
+	f.Imports = append(f.Imports, im)
+	return nil
 }
 
 func (f *File) AddPackageName(name string) error {
@@ -39,41 +58,19 @@ func (f *File) AddStructType(s *ast.StructType, name string) error {
 	return nil
 }
 
+type Import struct {
+	Alias string
+	Name  string
+	Path  string
+}
+
 type Struct struct {
 	TypeName string
 	Fields   []*Field
 }
 
 type Field struct {
-	Name     string
-	TypeName string
-	TagValue string
-
-	alias   string
-	require bool
-}
-
-func (f Field) WithName() string {
-	if f.alias == "" {
-		return f.Name
-	}
-	return f.alias
-}
-
-func (f *Field) parseTagValue() error {
-	const (
-		requirePrefix = "require"
-		aliasPrefix   = "alias="
-	)
-	exprs := strings.Split(f.TagValue, ",")
-	for _, expr := range exprs {
-		if strings.EqualFold(expr, requirePrefix) {
-			f.require = true
-		}
-		if strings.HasPrefix(expr, aliasPrefix) {
-			// TODO: validate
-			f.alias = strings.TrimPrefix(expr, aliasPrefix)
-		}
-	}
-	return nil
+	Name          string
+	TypeName      string
+	ImportPackage string
 }

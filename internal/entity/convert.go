@@ -2,11 +2,10 @@ package entity
 
 import (
 	"errors"
+	"fmt"
 	"go/ast"
 	"regexp"
 	"strings"
-
-	"github.com/fatih/structtag"
 )
 
 const (
@@ -32,26 +31,15 @@ func (c convertor) convertToField(f *ast.Field) (*Field, error) {
 	field := &Field{
 		Name: f.Names[0].Name,
 	}
-	if f.Tag != nil && len(f.Tag.Value) != 0 {
-		tags, err := structtag.Parse(strings.Trim(f.Tag.Value, "`"))
-		if err != nil {
-			return nil, err
-		}
-		tag, err := tags.Get(genInitTagName)
-		if err == nil {
-			field.TagValue = tag.Value()
-		}
-	}
 	switch t := f.Type.(type) {
 	case *ast.Ident:
 		field.TypeName = t.Name
-	case *ast.StructType, *ast.MapType, *ast.ArrayType, *ast.ChanType, *ast.InterfaceType:
+	case *ast.StructType, *ast.MapType, *ast.ArrayType, *ast.ChanType, *ast.InterfaceType, *ast.StarExpr, *ast.SelectorExpr:
 		field.TypeName = prepareType(string(c.RawFile[f.Pos():f.End()]))
 	default:
+		return nil, fmt.Errorf("unexpected field type: %T", f.Type)
 	}
-	if err := field.parseTagValue(); err != nil {
-		return nil, err
-	}
+	field.ImportPackage = getPackageImport(field.TypeName)
 	return field, nil
 }
 
@@ -77,4 +65,16 @@ func prepareType(s string) string {
 	s = closeClauseRegex.ReplaceAllString(s, "}")
 	s = identRegex.ReplaceAllString(s, "; ")
 	return s
+}
+
+func getPackageImport(tn string) string {
+	idx := strings.Index(tn, ".")
+	if idx == -1 {
+		return ""
+	}
+	pkg := tn[:idx]
+	if pkg[0] == '*' {
+		return pkg[1:]
+	}
+	return pkg
 }
