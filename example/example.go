@@ -24,10 +24,10 @@ type Str struct {
 }
 
 type ExampleStruct struct {
-	AA *sql.DB
-	A  int `geninit:"alias=Struct"`
-	B  string
-	C  []struct {
+	AA                  *sql.DB
+	AExample            int
+	BExample            string
+	AnExampleOfLongName []struct {
 		A string
 		B int
 		C []struct {
@@ -44,14 +44,14 @@ type ExampleStruct struct {
 			}
 		}
 	}
-	D struct {
+	DExample struct {
 		A int
 	}
-	E Str
-	m map[string]interface{}
-	I any
-	F chan struct{}
-	G []struct {
+	EExample Str
+	mExample map[string]interface{}
+	IExample any
+	FExample chan struct{}
+	GExample []struct {
 		A string
 		B int
 		C []struct {
