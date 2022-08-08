@@ -24,7 +24,7 @@ Works only with composite types
 # Install
 
 ```
-$ go install github.com/myjupyter/geninit@v0.1.1
+$ go install github.com/myjupyter/geninit@v0.1.2
 ```
 
 ---
