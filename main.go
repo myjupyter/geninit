@@ -76,7 +76,6 @@ func convertForRendering(f *entity.File, ps *property.Properties) (*render.File,
 		if ok {
 			rf.Alias = prop.Alias
 			rf.Required = prop.Required
-			rf.ParamShorthand = genParamShorthand(field.Name)
 		}
 		rs.Fields = append(rs.Fields, rf)
 	}
