@@ -25,7 +25,7 @@ type convertor struct {
 }
 
 func (c convertor) convertToField(f *ast.Field) (*Field, error) {
-	if f.Names == nil {
+	if len(f.Names) == 0 {
 		return nil, errors.New("field does not have name")
 	}
 	field := &Field{
@@ -35,7 +35,9 @@ func (c convertor) convertToField(f *ast.Field) (*Field, error) {
 	case *ast.Ident:
 		field.TypeName = t.Name
 	case *ast.StructType, *ast.MapType, *ast.ArrayType, *ast.ChanType, *ast.InterfaceType, *ast.StarExpr, *ast.SelectorExpr:
-		field.TypeName = prepareType(string(c.RawFile[f.Pos():f.End()]))
+		trimName := f.Names[0].Name
+		typeName := strings.TrimPrefix(string(c.RawFile[f.Pos()-1:f.End()]), trimName)
+		field.TypeName = prepareType(typeName)
 	default:
 		return nil, fmt.Errorf("unexpected field type: %T", f.Type)
 	}
