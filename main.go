@@ -18,13 +18,20 @@ var (
 	typename   string
 	prefix     string
 	properties string
+	version    string
+	showVer    bool
+	show       bool
+	needNew    bool
 )
 
 func parseFlags() struct{} {
 	flag.StringVar(&filename, "filename", "", "select file with structs")
-	flag.StringVar(&typename, "type", "", "selecte type which for you want generate initialization")
+	flag.StringVar(&typename, "type", "", "selecte type which for you want generate options")
 	flag.StringVar(&prefix, "optprefix", "", "set prefix for Option type")
 	flag.StringVar(&properties, "property", "", "pass properties for fields (example: -p \"A:required;B:alias=BB\")")
+	flag.BoolVar(&show, "show", false, "show types which for options pattern can be generated")
+	flag.BoolVar(&needNew, "new", false, "generate with new and must constructors")
+	flag.BoolVar(&showVer, "version", false, "show geninit version")
 	flag.Parse()
 	return struct{}{}
 }
@@ -40,6 +47,15 @@ func getType(ss []*entity.Struct, t string) (*entity.Struct, error) {
 	return nil, fmt.Errorf("no type detected")
 }
 
+func showTypes(f *entity.File) {
+	if len(f.Structs) == 0 {
+		fmt.Println("no types found")
+	}
+	for _, s := range f.Structs {
+		fmt.Printf("%s.%s\n", f.PackageName, s.TypeName)
+	}
+}
+
 func genParamShorthand(p string) string {
 	var rs []rune
 	for i, r := range p {
@@ -53,7 +69,7 @@ func genParamShorthand(p string) string {
 	return string(rs)
 }
 
-func convertForRendering(f *entity.File, ps *property.Properties) (*render.File, error) {
+func convertForRendering(f *entity.File, ps *property.Properties, needNew bool) (*render.File, error) {
 	s, err := getType(f.Structs, typename)
 	if err != nil {
 		return nil, err
@@ -100,12 +116,17 @@ func convertForRendering(f *entity.File, ps *property.Properties) (*render.File,
 	}
 	return &render.File{
 		PackageName: f.PackageName,
+		NeedNew:     needNew,
 		Imports:     ims,
 		Struct:      rs,
 	}, nil
 }
 
 func main() {
+	if showVer {
+		fmt.Printf("%s\n", version)
+		return
+	}
 	ps, err := property.Parse(prefix, properties)
 	if err != nil {
 		log.Fatal(err)
@@ -118,11 +139,16 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+
 	if err := parser.ParseTo(filename, f); err != nil {
 		log.Fatal(err)
 	}
+	if show {
+		showTypes(f)
+		return
+	}
 
-	rf, err := convertForRendering(f, ps)
+	rf, err := convertForRendering(f, ps, needNew)
 	if err != nil {
 		log.Fatal(err)
 	}

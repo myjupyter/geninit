@@ -4,6 +4,7 @@ import "strings"
 
 type File struct {
 	PackageName string
+	NeedNew     bool
 	Imports     []*Import
 	Struct      *Struct
 }

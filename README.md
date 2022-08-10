@@ -6,25 +6,31 @@
 
 # Usage 
 ```
-Usage of geninit:
+Usage of ./bin/geninit:
   -filename string
     	select file with structs
+  -new
+    	generate with new and must constructors
   -optprefix string
     	set prefix for Option type
   -property string
     	pass properties for fields (example: -p "A:required;B:alias=BB")
+  -show
+    	show types which for options pattern can be generated
   -type string
-    	selecte type which for you want generate initialization
+    	selecte type which for you want generate options
+  -version
+    	show geninit version
 ```
 
 Works only with composite types
 
 ---
 
-# Install
+# Installation
 
 ```
-$ go install github.com/myjupyter/geninit@v0.1.2
+$ go install github.com/myjupyter/geninit@latest
 ```
 
 ---

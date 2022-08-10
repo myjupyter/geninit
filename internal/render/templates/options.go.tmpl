@@ -9,7 +9,7 @@ import (
 {{- end}}
 
 type {{.Struct.Prefix}}Option func(*{{.Struct.TypeName}}) error 
-
+{{ if .NeedNew}}
 func New{{.Struct.TypeName}}({{ .Struct.RequiredFieldsAsParams}}{{if .Struct.HasRequiredAndOptionalField}}, {{end}}{{ if .Struct.HasOptionalField}}opts ...{{.Struct.Prefix}}Option{{end}}) (*{{.Struct.TypeName}}, error) {
     obj := &{{.Struct.TypeName}}{
     {{- range $field := .Struct.ListRequiredFields }}
@@ -33,6 +33,7 @@ func Must{{.Struct.TypeName}}({{ .Struct.RequiredFieldsAsParams}}{{if .Struct.Ha
   }
   return obj
 }
+{{- end}}
 {{ range $field := .Struct.Fields}} 
 {{- if not $field.Required }}
 func With{{$field.WithName}}({{$field.ParamShorthand}} {{$field.TypeName}}) {{$.Struct.Prefix}}Option {
